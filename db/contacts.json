@@ -1,0 +1,1 @@
+{"db":{"0":{"json_class":"Contact","data":{"id":0,"name":"Roy G. Biv","birthdate":"01/01/1901","email":"roy.g.biv@biv.com","phone":"+1 303-555-5500","twitter":"@rainbow"}},"1":{"json_class":"Contact","data":{"id":1,"name":"Luke Skywalker","birthdate":"02/02/2001","email":"luke@skywalker.org","phone":"+1 303-555-5501","twitter":"@jedi"}}},"next_id":2}
