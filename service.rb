@@ -8,7 +8,7 @@ $contacts = nil
 $next_id  = 0
 
 def load_contacts()
-  f    = File.open('db/contacts.json')
+  f    = File.open(settings.db)
   data = f.read.chomp
   f.close
   data = JSON.parse(data, :create_additions => true)
@@ -21,7 +21,7 @@ end
 
 def save_contacts
   data = {"db" => $contacts, "next_id" => $next_id}
-  f = File.open('db/contacts.json', 'w')
+  f = File.open(settings.db, 'w')
   f.puts data.to_json
   f.close
 end
@@ -42,7 +42,12 @@ end
 
 configure do
   set :port, 3000
+  set :db, "db/contacts.json"
   load_contacts
+end
+
+configure :test do
+  set :db, "db/test.json"
 end
 
 get '/api/1.0/contacts' do
