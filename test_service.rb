@@ -186,4 +186,21 @@ describe 'The Contacts Web Service' do
     expect(result["status"]).to be false
   end
 
+  it "can search for upcoming birthdays and find them" do
+    post '/api/1.0/upcomingbirthdays', { :date => "12/01/2014"}.to_json
+    expect(last_response).to be_ok
+    result = JSON.parse(last_response.body)
+    expect(result).to be_an_instance_of(Array)
+    expect(result.size).to eq(2)
+  end
+
+  it "can search for upcoming birthdays and not find them" do
+    post '/api/1.0/upcomingbirthdays', { :date => "06/01/2014"}.to_json
+    expect(last_response).to be_ok
+    result = JSON.parse(last_response.body)
+    expect(result).to be_an_instance_of(Hash)
+    expect(result.size).to eq(2)
+    expect(result["status"]).to be false
+  end
+
 end

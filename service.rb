@@ -60,7 +60,7 @@ get '/api/1.0/reset' do
 end
 
 get '/api/1.0/contacts' do
-  response = $contacts.keys.map { |key| $contacts[key].summary_response }
+  response = $contacts.values.map { |c| c.summary_response }
   response.to_json
 end
 
@@ -111,7 +111,29 @@ delete '/api/1.0/contacts/:id' do
 end
 
 get '/api/1.0/search' do
-  matches = $contacts.values.select {|c| c.contains(params['q'])}
+  matches = $contacts.values.select {|c| c.contains?(params['q']) }
+  if matches.size > 0
+    response = matches.map { |c| c.full_response }
+    response.to_json
+  else
+    {"status" => false, "message" => "No matches found."}.to_json
+  end
+end
+
+get '/api/1.0/upcomingbirthdays' do
+  matches = $contacts.values.select {|c| c.upcoming_birthday? }
+  if matches.size > 0
+    response = matches.map { |c| c.full_response }
+    response.to_json
+  else
+    {"status" => false, "message" => "No matches found."}.to_json
+  end
+end
+
+post '/api/1.0/upcomingbirthdays' do
+  data = JSON.parse(request.body.read)
+  date = Date.strptime(data["date"], '%m/%d/%Y')
+  matches = $contacts.values.select {|c| c.upcoming_birthday?(date) }
   if matches.size > 0
     response = matches.map { |c| c.full_response }
     response.to_json

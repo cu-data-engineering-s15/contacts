@@ -24,7 +24,7 @@ class Contact
     true
   end
 
-  def contains(query)
+  def contains?(query)
     query = query.downcase
     return true if self.name.downcase.include?(query)
     return true if self.email.downcase.include?(query)
@@ -35,6 +35,14 @@ class Contact
 
     return birthdate_str.include?(query)
 
+  end
+
+  def upcoming_birthday?(current_date = Time.now)
+    month             = current_date.month
+    next_months       = [month, month+1, month+2]
+    next_months       = next_months.map { |x| x >= 13 ? x - 12 : x }
+    is_there_a_match  = next_months.select { |x| x == self.birthdate.month }
+    return is_there_a_match.size == 1
   end
 
   def summary_response
