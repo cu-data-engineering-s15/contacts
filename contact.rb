@@ -24,6 +24,19 @@ class Contact
     true
   end
 
+  def contains(query)
+    query = query.downcase
+    return true if self.name.downcase.include?(query)
+    return true if self.email.downcase.include?(query)
+    return true if self.phone.downcase.include?(query)
+    return true if self.twitter.downcase.include?(query)
+
+    birthdate_str = self.birthdate.strftime('%m/%d/%Y')
+
+    return birthdate_str.include?(query)
+
+  end
+
   def summary_response
     {
       "id" => @id,
