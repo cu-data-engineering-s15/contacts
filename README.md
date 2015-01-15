@@ -26,20 +26,20 @@ to handle HTTP-based calls on its API.
 
 ## API
 
-`GET /api/1.0/contacts`
+### `GET /api/1.0/contacts`
 
 Retrieve a list of contact names plus their associated ids.
 
-`POST /api/1.0/contacts`
+### `POST /api/1.0/contacts`
 
 Create a new contact with the supplied information. Returns the newly
 created contact plus its id.
 
-`GET /api/1.0/contacts/:id`
+### `GET /api/1.0/contacts/:id`
 
 Retrieve the contact with the specified id.
 
-`PUT /api/1.0/contacts/:id`
+### `PUT /api/1.0/contacts/:id`
 
 Replace the contact with the specified id. The client must pass what
 it thinks the current value of the contact is plus the new value of
@@ -48,17 +48,17 @@ the value of the contact is updated to the new value. The only
 requirement is that the "new value" must have the same id as the old
 value, any other field may change.
 
-`DELETE /api/1.0/contacts/:id`
+### `DELETE /api/1.0/contacts/:id`
 
 Delete the contact with the specified id.
 
-`GET /api/1.0/search`
+### `GET /api/1.0/search`
 
 Returns contacts that match a given query string `q`. Matches are
 treated as substrings to be found in the attributes of the contacts. The
 query string `man` would find contact `Barry Manilow` as well as the
 contact whose Twitter handle is `@thecheeseman`.
 
-`GET /api/1.0/upcomingbirthdays`
+### `GET /api/1.0/upcomingbirthdays`
 
-Returns any contacts whose birthdays occur in the next three months.
+Returns contacts whose birthdays occur in the next three months.
