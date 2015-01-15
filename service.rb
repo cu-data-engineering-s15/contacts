@@ -104,8 +104,18 @@ delete '/api/1.0/contacts/:id' do
   if $contacts.has_key?(id)
     $contacts.delete(id)
     save_contacts
-    {"status" => "Contact #{id} deleted"}.to_json
+    {"status" => true, "message" => "Contact #{id} deleted"}.to_json
   else
     error 404, {:error => "Contact not found"}.to_json
+  end
+end
+
+get '/api/1.0/search' do
+  matches = $contacts.values.select {|c| c.contains(params['q'])}
+  if matches.size > 0
+    response = matches.map { |c| c.full_response }
+    response.to_json
+  else
+    {"status" => false, "message" => "No matches found."}.to_json
   end
 end

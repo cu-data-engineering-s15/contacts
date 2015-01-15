@@ -91,8 +91,9 @@ describe 'The Contacts Web Service' do
     expect(last_response).to be_ok
     result = JSON.parse(last_response.body)
     expect(result).to be_an_instance_of(Hash)
-    expect(result.size).to eq(1)
-    expect(result["status"]).to eq("Contact 0 deleted")
+    expect(result.size).to eq(2)
+    expect(result["status"]).to be true
+    expect(result["message"]).to eq("Contact 0 deleted")
 
     # verify that we end with one contact with an id of "1"
     get '/api/1.0/contacts'
@@ -155,6 +156,34 @@ describe 'The Contacts Web Service' do
     expect(result["phone"]).to eq("+1 303-555-5555")
     expect(result["twitter"]).to eq("@roygbiv")
 
+  end
+
+  it "can search contacts for a single match" do
+    get '/api/1.0/search?q=Roy'
+    expect(last_response).to be_ok
+    result = JSON.parse(last_response.body)
+    expect(result).to be_an_instance_of(Array)
+    expect(result.size).to eq(1)
+    expect(result[0]["name"]).to eq("Roy G. Biv")
+  end
+
+  it "can search contacts for multiple matches" do
+    get '/api/1.0/search?q=555'
+    expect(last_response).to be_ok
+    result = JSON.parse(last_response.body)
+    expect(result).to be_an_instance_of(Array)
+    expect(result.size).to eq(2)
+    expect(result[0]["name"]).to eq("Roy G. Biv")
+    expect(result[1]["name"]).to eq("Luke Skywalker")
+  end
+
+  it "can search contacts for no match" do
+    get '/api/1.0/search?q=Zanzibar'
+    expect(last_response).to be_ok
+    result = JSON.parse(last_response.body)
+    expect(result).to be_an_instance_of(Hash)
+    expect(result.size).to eq(2)
+    expect(result["status"]).to be false
   end
 
 end
