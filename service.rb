@@ -7,7 +7,7 @@ require_relative 'contact'
 $contacts = nil
 $next_id  = 0
 
-def load_contacts()
+def load_contacts
   f    = File.open(settings.db)
   data = f.read.chomp
   f.close
@@ -48,6 +48,15 @@ end
 
 configure :test do
   set :db, "db/test.json"
+end
+
+get '/api/1.0/reset' do
+  if settings.test?
+    load_contacts
+    {"status" => true, "message" => "Contacts reloaded"}.to_json
+  else
+    error 404, {:error => "/reset is not handled."}.to_json
+  end
 end
 
 get '/api/1.0/contacts' do
@@ -100,4 +109,3 @@ delete '/api/1.0/contacts/:id' do
     error 404, {:error => "Contact not found"}.to_json
   end
 end
-
