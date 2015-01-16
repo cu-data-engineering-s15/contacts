@@ -47,12 +47,11 @@ Create a new contact with the supplied information. Returns the newly created co
 Example request object:
 
 ```json
-{
-  :name      => "Shimmer",
-  :birthdate => "02/05/1960",
-  :email     => "shimmer@crimsonguard.com",
-  :phone     => "303-555-5525",
-  :twitter   => "@shimmer"
+{ "name":      "Shimmer",
+  "birthdate": "02/05/1960",
+  "email":     "shimmer@crimsonguard.com",
+  "phone":     "303-555-5525",
+  "twitter":   "@shimmer"
 }
 ```
 
