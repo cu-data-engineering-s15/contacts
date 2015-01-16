@@ -84,13 +84,13 @@ Update the contact with the specified id with new information. The client must p
 Example request object:
 
 ```json
-{"expected": {"name":"Heidi Klum","birthdate":"06/19/1985","email":"heidi@klum.net","phone":"+1 303-555-5502","twitter":"@projectrunway"}, "updated": {"name":"Heidi Klum","birthdate":"06/01/1973","email":"heidi.klum@fashion.com"    ,"phone":"+1 303-555-5505","twitter":"@agt"}}
+{"expected": {"name":"Heidi Klum","birthdate":"06/19/1985","email":"heidi@klum.net","phone":"+1 303-555-5502","twitter":"@projectrunway"}, "updated": {"name":"Heidi Klum","birthdate":"06/01/1973","email":"heidi.klum@fashion.com","phone":"+1 303-555-5505","twitter":"@agt"}}
 ```
 
 Example successful response:
 
 ```json
-{"status":true,"data":{"id”:2,”name":"Heidi Klum","birthdate":"06/01/1973","email":"heidi.klum@fashion.com","phone":"+1 303-555-5505","twitter”:”@agt”}}
+{"status":true,"data":{"id":2,"name":"Heidi Klum","birthdate":"06/01/1973","email":"heidi.klum@fashion.com","phone":"+1 303-555-5505","twitter":"@agt"}}
 ```
 
 Example failure response:
@@ -116,7 +116,7 @@ Returns contacts that match a given query string `q`. Matches are treated as sub
 Example Response:
 
 ```json
-{"status":true,"data”:[{“id":0,"name":"Roy G. Biv","birthdate":"01/01/1901","email":"roy.g.biv@biv.com","phone":"+1 303-555-5500","twitter":"@rainbow”}]}
+{"status":true,"data":[{"id":0,"name":"Roy G. Biv","birthdate":"01/01/1901","email":"roy.g.biv@biv.com","phone":"+1 303-555-5500","twitter":"@rainbow"}]}
 ```
 
 ### `GET /api/1.0/upcomingbirthdays`
@@ -126,5 +126,5 @@ Returns contacts whose birthdays occur in the next three months.
 Example Response:
 
 ```json
-{"status":true,"data”:[{“id":0,"name":"Roy G. Biv","birthdate":"01/01/1901","email":"roy.g.biv@biv.com","phone":"+1 303-555-5500","twitter":"@rainbow”}]}
+{"status":true,"data":[{"id":0,"name":"Roy G. Biv","birthdate":"01/01/1901","email":"roy.g.biv@biv.com","phone":"+1 303-555-5500","twitter":"@rainbow"}]}
 ```
