@@ -11,14 +11,49 @@ require 'rack/test'
 describe 'The Contacts Web Service' do
   include Rack::Test::Methods
 
-  def app
-    Sinatra::Application
-  end
-
+  # test helper methods
   def reset_app
     File.delete('db/test.json')
     FileUtils.cp('db/pristine.json', 'db/test.json')
     get '/api/1.0/reset'
+  end
+
+  def process_response
+    expect(last_response).to be_ok
+    return JSON.parse(last_response.body)
+  end
+
+  def verify_success(response)
+    expect(response).to be_an_instance_of(Hash)
+    expect(response.keys).to match_array(["status", "data"])
+    expect(response['status']).to be true
+    expect(response['data']).to be_truthy
+    return response['data']
+  end
+
+  def verify_failure(response)
+    expect(response).to be_an_instance_of(Hash)
+    expect(response.keys).to match_array(["status", "error"])
+    expect(response['status']).to be false
+    expect(response['error']).to be_truthy
+    return response['error']
+  end
+
+  def verify_contacts(list)
+    expect(list).to be_an_instance_of(Array)
+    yield list
+  end
+
+  def verify_contact(contact)
+    keys = ["id", "name", "birthdate", "email", "phone", "twitter"]
+    expect(contact).to be_an_instance_of(Hash)
+    expect(contact.size).to eq(6)
+    expect(contact.keys).to match_array(keys)
+    yield contact
+  end
+
+  def app
+    Sinatra::Application
   end
 
   before(:each) do
@@ -32,27 +67,26 @@ describe 'The Contacts Web Service' do
   it "should list all contacts" do
     # get list of contacts
     get '/api/1.0/contacts'
-    expect(last_response).to be_ok
-    result = JSON.parse(last_response.body)
 
-    # check that we have two contacts in the right format
-    # and with values we expect from our test data
-    expect(result).to be_an_instance_of(Array)
-    expect(result.size).to eq(2)
-    expect(result[0].size).to eq(2)
-    expect(result[0].keys).to include("id")
-    expect(result[0].keys).to include("name")
-    expect(result[0]["id"]).to eq(0)
-    expect(result[0]["name"]).to eq("Roy G. Biv")
+    verify_contacts(verify_success(process_response)) do |list|
+      expect(list.size).to eq(2)
+
+      item = list[0]
+
+      expect(item.keys).to match_array(["id", "name"])
+      expect(item["id"]).to eq(0)
+      expect(item["name"]).to eq("Roy G. Biv")
+    
+    end
+
   end
 
   it "should create a contact" do
     # verify that we start with two contacts
     get '/api/1.0/contacts'
-    expect(last_response).to be_ok
-    result = JSON.parse(last_response.body)
-    expect(result).to be_an_instance_of(Array)
-    expect(result.size).to eq(2)
+    verify_contacts(verify_success(process_response)) do |list|
+      expect(list.size).to eq(2)
+    end
 
     # create a contact
     post '/api/1.0/contacts', {
@@ -63,67 +97,57 @@ describe 'The Contacts Web Service' do
       :twitter   => "@shimmer"}.to_json
 
     # verify that the new contact is passed back
-    expect(last_response).to be_ok
-    result = JSON.parse(last_response.body)
-    expect(result).to be_an_instance_of(Hash)
-    expect(result.size).to eq(6)
-    expect(result["id"]).to eq(2)
-    expect(result["name"]).to eq("Shimmer")
+    verify_contact(verify_success(process_response)) do |contact|
+      expect(contact["id"]).to eq(2)
+      expect(contact["name"]).to eq("Shimmer")
+    end
 
     # verify that we end with three contacts
     get '/api/1.0/contacts'
-    expect(last_response).to be_ok
-    result = JSON.parse(last_response.body)
-    expect(result).to be_an_instance_of(Array)
-    expect(result.size).to eq(3)
+    verify_contacts(verify_success(process_response)) do |list|
+      expect(list.size).to eq(3)
+    end
 
   end
 
   it "should delete a contact" do
-    # verify that we start with two contacts
+    # verify that we end with two contacts
     get '/api/1.0/contacts'
-    expect(last_response).to be_ok
-    result = JSON.parse(last_response.body)
-    expect(result.size).to eq(2)
+    verify_contacts(verify_success(process_response)) do |list|
+      expect(list.size).to eq(2)
+    end
 
     # delete the first contact; check the response
     delete '/api/1.0/contacts/0'
-    expect(last_response).to be_ok
-    result = JSON.parse(last_response.body)
-    expect(result).to be_an_instance_of(Hash)
-    expect(result.size).to eq(2)
-    expect(result["status"]).to be true
-    expect(result["message"]).to eq("Contact 0 deleted")
 
-    # verify that we end with one contact with an id of "1"
+    verify_success(process_response)
+
+    # verify that we end with one contact with an id of 1"
     get '/api/1.0/contacts'
-    expect(last_response).to be_ok
-    result = JSON.parse(last_response.body)
-    expect(result.size).to eq(1)
-    expect(result[0]["id"]).to eq(1)
+    verify_contacts(verify_success(process_response)) do |list|
+      expect(list.size).to eq(1)
+      expect(list[0]["id"]).to eq(1)
+    end
+
   end
 
   it "should handle GET requests for non-existent contacts" do
-    # ask for a contact with an id that does not exist
-    # verify that a 404 is generated with the appropriate message
     get '/api/1.0/contacts/20'
-    expect(last_response.status).to eq(404)
-    result = JSON.parse(last_response.body)
-    expect(result["error"]).to eq("Contact not found")
+    message = verify_failure(process_response)
+    expect(message).to eq("Contact 20 not found")
   end
 
   it "should get a contact" do
     get '/api/1.0/contacts/0'
-    expect(last_response).to be_ok
-    result = JSON.parse(last_response.body)
-    expect(result).to be_an_instance_of(Hash)
-    expect(result.size).to eq(6)
-    expect(result["id"]).to eq(0)
-    expect(result["name"]).to eq("Roy G. Biv")
-    expect(result["birthdate"]).to eq("01/01/1901")
-    expect(result["email"]).to eq("roy.g.biv@biv.com")
-    expect(result["phone"]).to eq("+1 303-555-5500")
-    expect(result["twitter"]).to eq("@rainbow")
+
+    verify_contact(verify_success(process_response)) do |contact|
+      expect(contact["id"]).to eq(0)
+      expect(contact["name"]).to eq("Roy G. Biv")
+      expect(contact["birthdate"]).to eq("01/01/1901")
+      expect(contact["email"]).to eq("roy.g.biv@biv.com")
+      expect(contact["phone"]).to eq("+1 303-555-5500")
+      expect(contact["twitter"]).to eq("@rainbow")
+    end
   end
 
   it "should update a contact" do
@@ -142,65 +166,63 @@ describe 'The Contacts Web Service' do
         :phone     => "+1 303-555-5555",
         :twitter   => "@roygbiv"}
       }.to_json
-    expect(last_response).to be_ok
+
+    verify_success(process_response)
 
     get '/api/1.0/contacts/0'
-    expect(last_response).to be_ok
-    result = JSON.parse(last_response.body)
-    expect(result).to be_an_instance_of(Hash)
-    expect(result.size).to eq(6)
-    expect(result["id"]).to eq(0)
-    expect(result["name"]).to eq("Roy Green Biv")
-    expect(result["birthdate"]).to eq("01/01/2001")
-    expect(result["email"]).to eq("roy@gbiv.com")
-    expect(result["phone"]).to eq("+1 303-555-5555")
-    expect(result["twitter"]).to eq("@roygbiv")
+    verify_contact(verify_success(process_response)) do |contact|
+      expect(contact["id"]).to eq(0)
+      expect(contact["name"]).to eq("Roy Green Biv")
+      expect(contact["birthdate"]).to eq("01/01/2001")
+      expect(contact["email"]).to eq("roy@gbiv.com")
+      expect(contact["phone"]).to eq("+1 303-555-5555")
+      expect(contact["twitter"]).to eq("@roygbiv")
+    end
 
   end
 
   it "can search contacts for a single match" do
     get '/api/1.0/search?q=Roy'
-    expect(last_response).to be_ok
-    result = JSON.parse(last_response.body)
-    expect(result).to be_an_instance_of(Array)
-    expect(result.size).to eq(1)
-    expect(result[0]["name"]).to eq("Roy G. Biv")
+    verify_contacts(verify_success(process_response)) do |list|
+      expect(list.size).to eq(1)
+      verify_contact(list[0]) do |contact|
+        expect(contact["name"]).to eq("Roy G. Biv")
+      end
+    end
   end
 
   it "can search contacts for multiple matches" do
     get '/api/1.0/search?q=555'
-    expect(last_response).to be_ok
-    result = JSON.parse(last_response.body)
-    expect(result).to be_an_instance_of(Array)
-    expect(result.size).to eq(2)
-    expect(result[0]["name"]).to eq("Roy G. Biv")
-    expect(result[1]["name"]).to eq("Luke Skywalker")
+    verify_contacts(verify_success(process_response)) do |list|
+      expect(list.size).to eq(2)
+      verify_contact(list[0]) do |contact|
+        expect(contact["name"]).to eq("Roy G. Biv")
+      end
+      verify_contact(list[1]) do |contact|
+        expect(contact["name"]).to eq("Luke Skywalker")
+      end
+    end
   end
 
   it "can search contacts for no match" do
     get '/api/1.0/search?q=Zanzibar'
-    expect(last_response).to be_ok
-    result = JSON.parse(last_response.body)
-    expect(result).to be_an_instance_of(Hash)
-    expect(result.size).to eq(2)
-    expect(result["status"]).to be false
+    verify_contacts(verify_success(process_response)) do |list|
+      expect(list.size).to eq(0)
+    end
   end
 
   it "can search for upcoming birthdays and find them" do
-    post '/api/1.0/upcomingbirthdays', { :date => "12/01/2014"}.to_json
-    expect(last_response).to be_ok
-    result = JSON.parse(last_response.body)
-    expect(result).to be_an_instance_of(Array)
-    expect(result.size).to eq(2)
+    post '/api/1.0/upcomingbirthdays', { date: "12/01/2014"}.to_json
+    verify_contacts(verify_success(process_response)) do |list|
+      expect(list.size).to eq(2)
+    end
   end
 
   it "can search for upcoming birthdays and not find them" do
-    post '/api/1.0/upcomingbirthdays', { :date => "06/01/2014"}.to_json
-    expect(last_response).to be_ok
-    result = JSON.parse(last_response.body)
-    expect(result).to be_an_instance_of(Hash)
-    expect(result.size).to eq(2)
-    expect(result["status"]).to be false
+    post '/api/1.0/upcomingbirthdays', { date: "06/01/2014"}.to_json
+    verify_contacts(verify_success(process_response)) do |list|
+      expect(list.size).to eq(0)
+    end
   end
 
 end
