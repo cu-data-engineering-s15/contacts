@@ -53,7 +53,7 @@ end
 get '/api/1.0/reset' do
   if settings.test?
     load_contacts
-    { status: true }.to_json
+    { status: true, data: [] }.to_json
   end
 end
 
@@ -102,7 +102,7 @@ delete '/api/1.0/contacts/:id' do
   if $contacts.has_key?(id)
     $contacts.delete(id)
     save_contacts
-    { status: true }.to_json
+    { status: true, data: [] }.to_json
   else
     {status: false, error: "Contact #{id} not found"}.to_json
   end
