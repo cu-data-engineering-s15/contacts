@@ -53,33 +53,31 @@ end
 get '/api/1.0/reset' do
   if settings.test?
     load_contacts
-    {"status" => true, "message" => "Contacts reloaded"}.to_json
-  else
-    error 404, {:error => "/reset is not handled."}.to_json
+    { status: true }.to_json
   end
 end
 
 get '/api/1.0/contacts' do
-  response = $contacts.values.map { |c| c.summary_response }
-  response.to_json
+  contacts = $contacts.values.map { |c| c.summary_response }
+  {status: true, data: contacts}.to_json
 end
 
 post '/api/1.0/contacts' do
   data        = JSON.parse(request.body.read)
+
   new_contact = create_contact_from_data(data, $next_id)
 
   add_new_contact(new_contact)
 
-  new_contact.full_response.to_json
+  {status: true, data: new_contact.full_response}.to_json
 end
 
 get '/api/1.0/contacts/:id' do
   id = params[:id].to_i
   if $contacts.has_key?(id)
-    contact = $contacts[id]
-    contact.full_response.to_json
+    {status: true, data: $contacts[id].full_response}.to_json
   else
-    error 404, {:error => "Contact not found"}.to_json
+    {status: false, error: "Contact #{id} not found"}.to_json
   end
 end
 
@@ -93,9 +91,9 @@ put '/api/1.0/contacts/:id' do
   if current == expected
     $contacts[id] = updated
     save_contacts
-    updated.full_response.to_json
+    {status: true, data: updated.full_response}.to_json
   else
-    {"status" => false, "message" => "Contact was stale."}.to_json
+    {status: false, error: "Expected information was stale."}.to_json
   end
 end
 
@@ -104,40 +102,28 @@ delete '/api/1.0/contacts/:id' do
   if $contacts.has_key?(id)
     $contacts.delete(id)
     save_contacts
-    {"status" => true, "message" => "Contact #{id} deleted"}.to_json
+    { status: true }.to_json
   else
-    error 404, {:error => "Contact not found"}.to_json
+    {status: false, error: "Contact #{id} not found"}.to_json
   end
 end
 
 get '/api/1.0/search' do
   matches = $contacts.values.select {|c| c.contains?(params['q']) }
-  if matches.size > 0
-    response = matches.map { |c| c.full_response }
-    response.to_json
-  else
-    {"status" => false, "message" => "No matches found."}.to_json
-  end
+  matches = matches.map { |c| c.full_response }
+  {status: true, data: matches}.to_json
 end
 
 get '/api/1.0/upcomingbirthdays' do
   matches = $contacts.values.select {|c| c.upcoming_birthday? }
-  if matches.size > 0
-    response = matches.map { |c| c.full_response }
-    response.to_json
-  else
-    {"status" => false, "message" => "No matches found."}.to_json
-  end
+  matches = matches.map { |c| c.full_response }
+  {status: true, data: matches}.to_json
 end
 
 post '/api/1.0/upcomingbirthdays' do
   data = JSON.parse(request.body.read)
   date = Date.strptime(data["date"], '%m/%d/%Y')
   matches = $contacts.values.select {|c| c.upcoming_birthday?(date) }
-  if matches.size > 0
-    response = matches.map { |c| c.full_response }
-    response.to_json
-  else
-    {"status" => false, "message" => "No matches found."}.to_json
-  end
+  matches = matches.map { |c| c.full_response }
+  {status: true, data: matches}.to_json
 end
