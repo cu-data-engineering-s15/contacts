@@ -2,7 +2,7 @@ require 'json'
 require 'sinatra'
 require 'sinatra/reloader' if development?
 
-require_relative 'contact'
+require_relative '../model/contact'
 
 $contacts = nil
 $next_id  = 0
