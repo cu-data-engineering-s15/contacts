@@ -53,7 +53,7 @@ describe 'The Contacts Web Service' do
   end
 
   def app
-    Sinatra::Application
+    ContactsService
   end
 
   before(:each) do
