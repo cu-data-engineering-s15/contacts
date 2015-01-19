@@ -8,6 +8,9 @@ require_relative '../model/contact'
 class NotConnected < StandardError
 end
 
+class FailureResult < StandardError
+end
+
 class ServiceError < StandardError
 end
 
@@ -24,37 +27,89 @@ class Contacts
     "http://localhost:3000"
   end
 
-  def available_contacts
-    url      = "#{base_uri}/api/1.0/contacts"
-    response = Typhoeus.get(url)
+  def handle_request(method, uri, data = nil)
+    url      = "#{base_uri}/#{uri}"
+    params   = {method: method, body: data }
+    request  = Typhoeus::Request.new(url, params)
+    request.run
+    response = request.response
+
     raise NotConnected if response.code == 0
     if response.code == 200
       result = JSON.parse(response.body)
-      raise ServiceError if !result["status"]
-      return result["data"]
+      if result["status"]
+        yield result["data"]
+      else
+        raise FailureResult.new(result["error"])
+      end
     end
     raise ServiceError
+  end
+
+  def available_contacts
+    handle_request(:get, "api/1.0/contacts") do |list|
+      return list
+    end
   end
 
   def create(data)
-    url      = "#{base_uri}/api/1.0/contacts"
-    response = Typhoeus.post(url, body: data.to_json)
-    raise NotConnected if response.code == 0
-    if response.code == 200
-      result = JSON.parse(response.body)
-      raise ServiceError if !result["status"]
-      return create_contact_from_data(result['data'])
+    handle_request(:post, "api/1.0/contacts", data.to_json) do |atts|
+      return create_contact_from_data(atts)
     end
-    raise ServiceError
+  end
+
+  def delete(id)
+    handle_request(:delete, "api/1.0/contacts/#{id}") do |ignore|
+      return true
+    end
+  end
+
+  def get(id)
+    handle_request(:get, "api/1.0/contacts/#{id}") do |atts|
+      return create_contact_from_data(atts)
+    end
+  end
+
+  def update(id, contact, data)
+    data = {
+      expected: {
+        name: contact.name,
+        birthdate: contact.birthdate.strftime('%m/%d/%Y'),
+        email: contact.email,
+        phone: contact.phone,
+        twitter: contact.twitter
+      },
+      updated: data
+    }
+    handle_request(:put, "api/1.0/contacts/#{id}", data.to_json) do |ignore|
+      return
+    end
+  end
+
+  def search(query)
+    handle_request(:get, "api/1.0/search?q=#{query}") do |list|
+      return list.map { |atts| create_contact_from_data(atts) }
+    end
+  end
+
+  def upcomingbirthdays(date = nil)
+    if date.nil?
+      handle_request(:get, "api/1.0/upcomingbirthdays") do |list|
+        return list.map { |atts| create_contact_from_data(atts) }
+      end
+    else
+      data = { date: date }
+      handle_request(:post,
+                     "api/1.0/upcomingbirthdays",
+                     data.to_json) do |list|
+        return list.map { |atts| create_contact_from_data(atts) }
+      end
+    end
   end
 
   def reset
-    url      = "#{base_uri}/api/1.0/reset"
-    response = Typhoeus.get(url)
-    raise NotConnected if response.code == 0
-    if response.code == 200
-      result = JSON.parse(response.body)
-      raise ServiceError if !result["status"]
+    handle_request(:get, "api/1.0/reset") do |ignore|
+      return
     end
   end
 
