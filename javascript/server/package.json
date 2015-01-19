@@ -1,0 +1,22 @@
+{
+  "name": "ContactsService",
+  "version": "0.0.1",
+  "description": "This simple RESTful service manages a set of contacts.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cu-data-engineering-s15/contacts.git"
+  },
+  "main": "contacts.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ken Anderson",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.10.1",
+    "express": "^4.11.0"
+  },
+  "devDependencies": {
+    "restler": "^3.2.2"
+  }
+}
