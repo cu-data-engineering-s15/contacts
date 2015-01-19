@@ -1,5 +1,7 @@
-require 'json'
 require 'sinatra/base'
+
+require 'json'
+require 'fileutils'
 
 require_relative '../model/contact'
 
@@ -57,10 +59,13 @@ class ContactsService < Sinatra::Base
 
   configure :test do
     set :db, "db/test.json"
+    set :pristine, "db/pristine.json"
   end
 
   get '/api/1.0/reset' do
     if settings.test?
+      File.delete(settings.db)
+      FileUtils.cp(settings.pristine, settings.db)
       load_contacts
       { status: true, data: [] }.to_json
     end

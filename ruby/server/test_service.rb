@@ -13,8 +13,6 @@ describe 'The Contacts Web Service' do
 
   # test helper methods
   def reset_app
-    File.delete('db/test.json')
-    FileUtils.cp('db/pristine.json', 'db/test.json')
     get '/api/1.0/reset'
   end
 
