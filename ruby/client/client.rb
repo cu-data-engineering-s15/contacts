@@ -29,7 +29,8 @@ class Contacts
 
   def handle_request(method, uri, data = nil)
     url      = "#{base_uri}/#{uri}"
-    params   = {method: method, body: data }
+    info     = { "Content-Type" => "application/json" }
+    params   = {method: method, body: data, headers: info }
     request  = Typhoeus::Request.new(url, params)
     request.run
     response = request.response
@@ -37,6 +38,7 @@ class Contacts
     raise NotConnected if response.code == 0
     if response.code == 200
       result = JSON.parse(response.body)
+      #puts result.inspect
       if result["status"]
         yield result["data"]
       else
