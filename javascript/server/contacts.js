@@ -43,8 +43,8 @@ app.get('/api/1.0/contacts/:id', function(req, res) {
 });
 
 app.delete('/api/1.0/contacts/:id', function(req, res) {
-  id     = Number(req.params.id)
-  status = contacts.delete_contact(id) 
+  id     = Number(req.params.id);
+  status = contacts.delete_contact(id);
   if (status) {
     res.json({ status: true, data: []});
   } else {
@@ -52,8 +52,34 @@ app.delete('/api/1.0/contacts/:id', function(req, res) {
   }
 });
 
+app.put('/api/1.0/contacts/:id', function(req, res) {
+  id          = Number(req.params.id);
+
+  expected    = req.body.expected;
+  expected.id = id;
+
+  updated     = req.body.updated;
+  updated.id  = id;
+
+  status = contacts.update(id, expected, updated);
+
+  if (status) {
+    res.json({status: true, data: updated });
+  } else {
+    res.json({status: false, error: "Expected information was stale."});
+  }
+});
+
 app.get('/api/1.0/search', function(req, res) {
   res.json({ status: true, data: contacts.find(req.query.q)});
+});
+
+app.get('/api/1.0/upcomingbirthdays', function(req, res) {
+  res.json({ status: true, data: contacts.birthdays()});
+});
+
+app.post('/api/1.0/upcomingbirthdays', function(req, res) {
+  res.json({ status: true, data: contacts.birthdays(req.body.date)});
 });
 
 app.use(function(err, req, res, next) {

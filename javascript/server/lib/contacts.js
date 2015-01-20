@@ -72,6 +72,37 @@ var get_contact = function(index) {
   }
 }
 
+var contacts_are_equal = function(a, b) {
+  if (a.id !== b.id) {
+    return false
+  }
+  if (a.name !== b.name) {
+    return false
+  }
+  if (a.phone !== b.phone) {
+    return false
+  }
+  if (a.email !== b.email) {
+    return false
+  }
+  if (a.twitter !== b.twitter) {
+    return false
+  }
+  if (a.phone !== b.phone) {
+    return false
+  }
+  return true;
+}
+
+var update = function(id, expected, updated) {
+  var actual = contacts[id];
+  if (contacts_are_equal(actual, expected)) {
+    contacts[id] = updated;
+    return true;
+  }
+  return false;
+}
+
 var contains = function(contact, query) {
   var q = query.toLowerCase();
   return Object.keys(contact).some(function (key) {
@@ -88,10 +119,40 @@ var find = function(query) {
   });
 }
 
+var upcoming_birthday = function(contact, current_date) {
+  if (current_date === undefined) {
+    current_date = new Date();
+  } else {
+    current_date = new Date(current_date);
+  }
+  month = current_date.getMonth() + 1;
+  next_months = [month, month+1, month+2]
+  next_months = next_months.map(function(element) {
+    return element >= 13 ? element - 12 : element;
+  });
+  is_there_a_match = next_months.filter(
+    function(month) {
+      var bday      = new Date(contact.birthdate);
+      var bdaymonth = bday.getMonth() + 1;
+      return (bdaymonth === month);
+    }
+  );
+  return is_there_a_match.length == 1
+}
+
+var birthdays = function(date) {
+  var items = contacts.filter(function(contact) {
+    return upcoming_birthday(contact, date);
+  });
+  return items;
+}
+
 exports.test_mode          = test_mode;
 exports.available_contacts = available_contacts;
 exports.create_contact     = create_contact;
 exports.delete_contact     = delete_contact;
 exports.get_contact        = get_contact;
 exports.find               = find;
+exports.update             = update;
+exports.birthdays          = birthdays;
 exports.reset              = reset;
