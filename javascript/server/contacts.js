@@ -1,6 +1,7 @@
 var express = require('express');
 var parser  = require('body-parser');
 var contacts = require('./lib/contacts');
+var logger   = require('morgan')
 
 var app = express();
 
@@ -12,6 +13,8 @@ app.set('env', process.env.NODE_ENV || 'development')
 
 //app.use(parser.urlencoded({ extended: true }));
 app.use(parser.json());
+
+app.use(logger('dev'));
 
 if (app.get('env') === "test") {
   contacts.test_mode('true');
