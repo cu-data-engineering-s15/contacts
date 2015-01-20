@@ -8,6 +8,9 @@ require_relative '../model/contact'
 class NotConnected < StandardError
 end
 
+class NotOk < StandardError
+end
+
 class FailureResult < StandardError
 end
 
@@ -44,6 +47,8 @@ class Contacts
       else
         raise FailureResult.new(result["error"])
       end
+    else
+      raise NotOk
     end
     raise ServiceError
   end
