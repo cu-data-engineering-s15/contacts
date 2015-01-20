@@ -72,9 +72,26 @@ var get_contact = function(index) {
   }
 }
 
+var contains = function(contact, query) {
+  var q = query.toLowerCase();
+  return Object.keys(contact).some(function (key) {
+    if (key !== "id") {
+      var value = contact[key].toLowerCase();
+      return value.indexOf(q) !== -1;
+    }
+  });
+}
+
+var find = function(query) {
+  return contacts.filter(function(contact) {
+    return contains(contact, query);
+  });
+}
+
 exports.test_mode          = test_mode;
 exports.available_contacts = available_contacts;
 exports.create_contact     = create_contact;
 exports.delete_contact     = delete_contact;
 exports.get_contact        = get_contact;
+exports.find               = find;
 exports.reset              = reset;

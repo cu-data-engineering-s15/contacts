@@ -52,6 +52,10 @@ app.delete('/api/1.0/contacts/:id', function(req, res) {
   }
 });
 
+app.get('/api/1.0/search', function(req, res) {
+  res.json({ status: true, data: contacts.find(req.query.q)});
+});
+
 app.use(function(err, req, res, next) {
   console.error(err.stack);
   next();
