@@ -11,7 +11,6 @@ app.set('port', process.env.PORT || 3000);
 // set up the environment for the server; default to development
 app.set('env', process.env.NODE_ENV || 'development')
 
-//app.use(parser.urlencoded({ extended: true }));
 app.use(parser.json());
 
 app.use(logger('dev'));
