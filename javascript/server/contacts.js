@@ -52,6 +52,11 @@ app.delete('/api/1.0/contacts/:id', function(req, res) {
   }
 });
 
+app.use(function(err, req, res, next) {
+  console.error(err.stack);
+  next();
+});
+
 app.listen(app.get('port'), function() {
   var message = 'Express started on http://localhost:';
   console.log(message + app.get('port'));
