@@ -1,0 +1,24 @@
+{
+  "name": "ContactsServiceAPI",
+  "version": "0.0.1",
+  "description": "A Javascript API for the ContactsService.",
+  "main": "test_contacts.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cu-data-engineering-s15/contacts.git"
+  },
+  "author": "Ken Anderson",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cu-data-engineering-s15/contacts/issues"
+  },
+  "homepage": "https://github.com/cu-data-engineering-s15/contacts",
+  "devDependencies": {
+    "chai": "^1.10.0",
+    "mocha": "^2.1.0",
+    "restler": "^3.2.2"
+  }
+}

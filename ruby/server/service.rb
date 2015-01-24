@@ -52,6 +52,7 @@ class ContactsService < Sinatra::Base
 
   configure do
     enable :method_override
+    enable :logging
     set :db, "db/contacts.json"
     set :contacts, {}
     set :next_id, 0
@@ -67,6 +68,7 @@ class ContactsService < Sinatra::Base
       File.delete(settings.db)
       FileUtils.cp(settings.pristine, settings.db)
       load_contacts
+      content_type :json
       { status: true, data: [] }.to_json
     end
   end
@@ -79,6 +81,7 @@ class ContactsService < Sinatra::Base
 
   get '/api/1.0/contacts' do
     items = settings.contacts.values.map { |c| c.summary_response }
+    content_type :json
     {status: true, data: items}.to_json
   end
 
@@ -89,11 +92,13 @@ class ContactsService < Sinatra::Base
 
     add_new_contact(new_contact)
 
+    content_type :json
     {status: true, data: new_contact.full_response}.to_json
   end
 
   get '/api/1.0/contacts/:id' do
     id = params[:id].to_i
+    content_type :json
     if settings.contacts.has_key?(id)
       {status: true, data: settings.contacts[id].full_response}.to_json
     else
@@ -108,6 +113,7 @@ class ContactsService < Sinatra::Base
     updated  = create_contact_from_data(data['updated'], id)
     current  = settings.contacts[id]
 
+    content_type :json
     if current == expected
       settings.contacts[id] = updated
       save_contacts
@@ -119,6 +125,7 @@ class ContactsService < Sinatra::Base
 
   delete '/api/1.0/contacts/:id' do
     id = params[:id].to_i
+    content_type :json
     if settings.contacts.has_key?(id)
       settings.contacts.delete(id)
       save_contacts
@@ -131,12 +138,14 @@ class ContactsService < Sinatra::Base
   get '/api/1.0/search' do
     items = settings.contacts.values.select {|c| c.contains?(params['q']) }
     items = items.map { |c| c.full_response }
+    content_type :json
     {status: true, data: items}.to_json
   end
 
   get '/api/1.0/upcomingbirthdays' do
     matches = settings.contacts.values.select {|c| c.upcoming_birthday? }
     matches = matches.map { |c| c.full_response }
+    content_type :json
     {status: true, data: matches}.to_json
   end
 
@@ -145,6 +154,7 @@ class ContactsService < Sinatra::Base
     date = Date.strptime(data["date"], '%m/%d/%Y')
     items = settings.contacts.values.select {|c| c.upcoming_birthday?(date)}
     items = items .map { |c| c.full_response }
+    content_type :json
     {status: true, data: items }.to_json
   end
 
