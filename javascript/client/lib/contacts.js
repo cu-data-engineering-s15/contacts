@@ -3,7 +3,7 @@ var rest = require('restler');
 var base = 'http://localhost:3000';
 
 var handle_success = function(data, callback, error) {
-  // console.log("In handle_success: data     = " + data);
+  // console.log("In handle_success: data     = " + JSON.stringify(data));
   // console.log("Type of Data                = " + typeof data);
   // console.log("In handle_success: callback = " + callback);
   // console.log("In handle_success: error    = " + error);
@@ -29,6 +29,9 @@ var handle_request = function(method, url, input, callback, error) {
   options = {
     method: method,
     data: JSON.stringify(input),
+    headers: {
+      'Content-Type': 'application/json'
+    },
     parser: rest.parsers.json
   };
   rest.request(base+url, options).on('success', function(data) {
