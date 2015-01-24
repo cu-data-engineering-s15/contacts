@@ -75,9 +75,24 @@ var update_contact = function(id, existing, updated, callback, error) {
   handle_request('put', '/api/1.0/contacts/' + id, info, callback, error);
 }
 
+var search = function(query, callback, error) {
+  handle_request('get', '/api/1.0/search?q=' + query, [], callback, error);
+}
+
+var upcomingbirthdays = function(date, callback, error) {
+  if (date === undefined) {
+    handle_request('get', '/api/1.0/upcomingbirthdays', [], callback, error);
+  } else {
+    data = { date: date};
+    handle_request('post', '/api/1.0/upcomingbirthdays', data, callback, error);
+  }
+}
+
 exports.reset              = reset;
 exports.available_contacts = available_contacts;
 exports.create_contact     = create_contact;
 exports.delete_contact     = delete_contact;
 exports.get_contact        = get_contact;
 exports.update_contact     = update_contact;
+exports.search             = search;
+exports.upcomingbirthdays  = upcomingbirthdays;
