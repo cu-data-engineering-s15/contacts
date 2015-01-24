@@ -116,4 +116,32 @@ describe('Contacts API Tests', function() {
     });
   });
 
+  it('should find a contact', function(done) {
+    contacts.search("Roy", function(data) {
+      expect(data).to.be.an.instanceof(Array);
+      expect(data).to.have.length(1);
+      expect(data[0]).to.be.an.instanceof(Object);
+      expect(data[0]).to.have.property('name', 'Roy G. Biv');
+      done();
+    });
+  });
+
+  it('should find upcoming birthdays', function(done) {
+    contacts.upcomingbirthdays("12/01/2014", function(data) {
+      expect(data).to.be.an.instanceof(Array);
+      expect(data).to.have.length(2);
+      expect(data[0]).to.be.an.instanceof(Object);
+      expect(data[0]).to.have.property('name', 'Roy G. Biv');
+      done();
+    });
+  });
+
+  it("can't find upcoming birthdays", function(done) {
+    contacts.upcomingbirthdays("06/01/2014", function(data) {
+      expect(data).to.be.an.instanceof(Array);
+      expect(data).to.have.length(0);
+      done();
+    });
+  });
+
 });
