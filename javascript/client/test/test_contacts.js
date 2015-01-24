@@ -48,4 +48,71 @@ describe('Contacts API Tests', function() {
     });
   });
 
+  it('should delete a contact', function(done) {
+    contacts.available_contacts(function (data) {
+      expect(data).to.be.an.instanceof(Array);
+      expect(data).to.have.length(2);
+      contacts.delete_contact(0, function(data) {
+        contacts.available_contacts(function (data) {
+          expect(data).to.be.an.instanceof(Array);
+          expect(data).to.have.length(1);
+          done();
+        });
+      });
+    });
+  });
+
+  it('should fail to delete a contact', function(done) {
+    contacts.delete_contact(20, function(data) {
+      // Note: this function should not be called
+      // If it is, then something is wrong!
+      expect(true).to.equal(false);
+      done();
+    }, function(error_message) {
+      expect(error_message).to.equal("Contact 20 not found");
+      done();
+    });
+  });
+
+  it('should get a contact', function(done) {
+    contacts.get_contact(0, function(data) {
+      expect(data).to.be.an.instanceof(Object);
+      expect(data).to.have.property('name', 'Roy G. Biv');
+      done();
+    });
+  });
+
+  it('should fail to get a non-existent contact', function(done) {
+    contacts.get_contact(20, function(data) {
+      // Note: this function should not be called
+      // If it is, then something is wrong!
+      expect(true).to.equal(false);
+      done();
+    }, function(error_message) {
+      expect(error_message).to.equal("Contact 20 not found");
+      done();
+    });
+  });
+
+  it('should update a contact', function(done) {
+    var updated_contact = {
+      name:      "Roy Green Biv",
+      birthdate: "01/01/2001",
+      email:     "roy@gbiv.com",
+      phone:     "+1 303-555-5555",
+      twitter:   "@roygbiv"
+    }
+    contacts.get_contact(0, function(data) {
+      var existing_contact = data;
+      contacts.update_contact(0, existing_contact, updated_contact, function(data) {
+        contacts.get_contact(0, function(data) {
+          expect(data).to.be.an.instanceof(Object);
+          expect(data).to.have.property('name', 'Roy Green Biv');
+          expect(data).to.have.property('twitter', '@roygbiv');
+          done();
+        });
+      });
+    });
+  });
+
 });
