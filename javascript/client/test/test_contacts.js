@@ -6,6 +6,8 @@ describe('Contacts API Tests', function() {
   afterEach('reset test data', function(done) {
     contacts.reset(function(data) {
       done();
+    }, function (error) {
+      console.log(error);
     });
   });
 
@@ -20,7 +22,6 @@ describe('Contacts API Tests', function() {
       done();
     }, function (error) {
       console.log(error);
-      done();
     });
   });
 
