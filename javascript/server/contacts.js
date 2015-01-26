@@ -1,7 +1,7 @@
 var express = require('express');
 var parser  = require('body-parser');
 var contacts = require('./lib/contacts');
-var logger   = require('morgan')
+var logger   = require('morgan');
 
 var app = express();
 
